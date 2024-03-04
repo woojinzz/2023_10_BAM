@@ -1,24 +1,27 @@
+package example;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main {
+import example.dto.Article;
+import example.util.Util;
+
+public class App {
 	
-	static List<Article> articles;// 게시글 저장
-	static int lastArticleId; //글 순서
+	private List<Article> articles;// 게시글 저장
+	private int lastArticleId; //글 순서
 	
-	static {
-		articles =  new ArrayList<>(); // 아티클스 초기화
-		lastArticleId = 0;
+	public App() {
+		this.articles =  new ArrayList<>(); // 아티클스 초기화
+		this.lastArticleId = 0;
 	}
 	
-	public static void main(String[] args) {
+	
+	public void run() {
 		
-		System.out.println("== 시작 ==");
+		System.out.println("== 프로그램 시작 ==");
 		
 		Scanner sc = new Scanner(System.in);
-		//int lastArticleId = 0;//글 넘버
 		String num ;// 사용자 입력
 		makeTestData();
 		
@@ -42,7 +45,7 @@ public class Main {
 				String body = sc.nextLine();
 	
 				Article article = new Article(lastArticleId, Util.getDate(), title, body);//값 받아올 사용자 객체가 필요함
-				articles.add(article);
+				this.articles.add(article);
 				
 				System.out.printf("%d 번 글 생성\n" , lastArticleId);
 		
@@ -50,15 +53,15 @@ public class Main {
 			//게시글 목록
 			else if(cmd.equals("article list")) {
 				
-				if(articles.size() == 0) {
+				if(this.articles.size() == 0) {
 					System.out.println("게시글이 없습니다.");
 					continue; //가장 가까운 반복문으로 이동
 				}
 				System.out.println("== 게시글 목록 ==");
 				System.out.println("번호	:	 제목	 :   작성일");
 				
-				for(int i = articles.size() - 1; i >= 0; i--) {//역순회 해야 해서 --
-					Article article = articles.get(i);
+				for(int i = this.articles.size() - 1; i >= 0; i--) {//역순회 해야 해서 --
+					Article article = this.articles.get(i);
 					System.out.printf("%d	:	 %s	 :   %s\n", article.id, article.title, article.regDate);
 				}
 				
@@ -73,15 +76,10 @@ public class Main {
 //					
 //					System.out.println(cmdBits[i]);
 //				}
-				   
-				Article foundArticle = null;// 불린으로 가능
+				// 불린으로 가능 null 아니면 article / 백업을 위해 만듦 
+				Article foundArticle = getArticleById(id);//여기 존재하는 아이디를 넘겨줘야 메소드에서 사용 가능
 				
-				for(Article article : articles) {
-					if(article.id == id) {
-						foundArticle = article;
-						break;
-					} 
-				}
+
 				if(foundArticle == null) {
 					System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 					continue;
@@ -99,14 +97,8 @@ public class Main {
 				
 				String[] cmdBits = cmd.split(" ");
 				int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
-				Article foundArticle = null;// 불린으로 가능
+				Article foundArticle = getArticleById(id);
 				
-				for(Article article : articles) {
-					if(article.id == id) {
-						foundArticle = article;
-						break;
-					} 
-				}
 				if(foundArticle == null) {
 					System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 					continue;
@@ -131,7 +123,7 @@ public class Main {
 				int foundIndex = -1;
 				int i = -1;
 				
-				for(Article article : articles) { //백업
+				for(Article article : this.articles) { //백업
 					if(article.id == id) {
 //						foundArticle = article;
 						foundIndex = i;
@@ -142,7 +134,7 @@ public class Main {
 					System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 					continue;
 				}
-				articles.remove(foundArticle);
+				this.articles.remove(foundArticle);
 				System.out.printf("%d 번 게시물을 삭제 했습니다.\n",id);
 			}
 			else {
@@ -151,35 +143,26 @@ public class Main {
 		}
 		sc.close();//스캐너 종료
 		System.out.println("== 끝 ==");
+		
+	}
+	private Article getArticleById(int id) {// id 값 넘겨 받음
+		
+		for(Article article : this.articles) { // 아디클을 넘겨주기 위해 존재
+			if(article.id == id) {
+				return article;
+			} 
+		}
+		return null;
 	}
 
-	private static void makeTestData() {
+
+	private void makeTestData() {//test 데이터 
 		
-		//전위연산은 이코드가 실행되기 전에 +
-		articles.add(new Article(++lastArticleId, Util.getDate(), "제목1", "내용1"));
-	    articles.add(new Article(++lastArticleId, Util.getDate(), "제목2", "내용2"));
-		articles.add(new Article(++lastArticleId, Util.getDate(), "제목3", "내용3"));
+		//0부터 시작하기 때문에 + 1 씩 각각 해줘야 함 / 전위연산은 이코드가 실행되기 전에 + 
+		this.articles.add(new Article(++lastArticleId, Util.getDate(), "제목1", "내용1"));
+	    this.articles.add(new Article(++lastArticleId, Util.getDate(), "제목2", "내용2"));
+		this.articles.add(new Article(++lastArticleId, Util.getDate(), "제목3", "내용3"));
 		System.out.println("테스트용 게시물이 생성되었습니다.");
-		
-		
-		
 	}
-}
 
-class Article{
-	
-	int id;
-	String regDate;
-	String title;
-	String body;
-	
-	//생성자 생성해서 바로 넘김
-	public Article(int id, String regDate, String title, String body) {
-		
-		this.id = id;
-		this.regDate = regDate;
-		this.title = title;
-		this.body =body;
-	}
-	
 }
