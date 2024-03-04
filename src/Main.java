@@ -5,16 +5,25 @@ import java.util.Scanner;
 
 public class Main {
 	
+	static List<Article> articles;// 게시글 저장
+	static int lastArticleId; //글 순서
+	
+	static {
+		articles =  new ArrayList<>(); // 아티클스 초기화
+		lastArticleId = 0;
+	}
+	
 	public static void main(String[] args) {
 		
 		System.out.println("== 시작 ==");
 		
 		Scanner sc = new Scanner(System.in);
-		int lastArticleId = 0;//글 넘버
+		//int lastArticleId = 0;//글 넘버
 		String num ;// 사용자 입력
-		List<Article> articles = new ArrayList<>();// 게시글 저장
+		makeTestData();
 		
 		while(true) {
+			
 			
 			System.out.printf("명령어) ");
 			String cmd = sc.nextLine();
@@ -25,18 +34,17 @@ public class Main {
 			//게시글 작성
 			if(cmd.equals("article write")) {
 				
-				int id = lastArticleId + 1;
-				lastArticleId = id;
+				lastArticleId++;
 				
 				System.out.printf("제목 : ");
 				String title = sc.nextLine();
 				System.out.printf("내용 : ");
 				String body = sc.nextLine();
 	
-				Article article = new Article(id, Util.getDate(), title, body);//값 받아올 사용자 객체가 필요함
+				Article article = new Article(lastArticleId, Util.getDate(), title, body);//값 받아올 사용자 객체가 필요함
 				articles.add(article);
 				
-				System.out.printf("%d 번 글 생성\n" , id);
+				System.out.printf("%d 번 글 생성\n" , lastArticleId);
 		
 			}
 			//게시글 목록
@@ -105,9 +113,9 @@ public class Main {
 				}
 				
 				System.out.println("== 게시글 수정 ==");
-				System.out.printf("제목 : ");
+				System.out.printf("수정할 제목 : ");
 				String title = sc.nextLine();
-				System.out.printf("내용 : ");
+				System.out.printf("수정할 내용 : ");
 				String body = sc.nextLine();
 				
 				foundArticle.title = title;
@@ -143,6 +151,18 @@ public class Main {
 		}
 		sc.close();//스캐너 종료
 		System.out.println("== 끝 ==");
+	}
+
+	private static void makeTestData() {
+		
+		//전위연산은 이코드가 실행되기 전에 +
+		articles.add(new Article(++lastArticleId, Util.getDate(), "제목1", "내용1"));
+	    articles.add(new Article(++lastArticleId, Util.getDate(), "제목2", "내용2"));
+		articles.add(new Article(++lastArticleId, Util.getDate(), "제목3", "내용3"));
+		System.out.println("테스트용 게시물이 생성되었습니다.");
+		
+		
+		
 	}
 }
 
