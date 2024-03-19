@@ -7,18 +7,44 @@ import java.util.Scanner;
 import example.dto.Article;
 import example.util.Util;
 
-public class ArticleController {
+public class ArticleController extends Controller {
 	private List<Article> articles;// 게시글 저장
 	private int lastArticleId; //글 순서
 	private Scanner sc; // 효율성에 의해 넘겨 받음
+	private String cmd;
 	
 	public ArticleController(Scanner sc) {
 		this.articles =  new ArrayList<>(); // 아티클스 초기화
 		this.lastArticleId = 0;
 		this.sc = sc;
+		this.cmd = null;
+	}
+	@Override
+	public void doAction(String cmd, String methodName ){
+		this.cmd = cmd;
+		switch (methodName) {
+		case "write":
+			doWrite();
+			break;
+		case "list":
+			showList();
+			break;
+		case "detail":
+			showDetail();
+			break;
+		case "modify":
+			doModify();
+			break;
+		case "delete":
+			doDelete();
+			break;			
+		default:
+			System.out.println("존재하지 않는 명령어 입니다.");
+			break;
+		}
 	}
 	
-	public void doWrite() {
+	private void doWrite() {
 		
 		lastArticleId++;
 		
@@ -32,26 +58,26 @@ public class ArticleController {
 		
 		System.out.printf("%d 번 글 생성\n" , lastArticleId);
 	}
-	public void showList(String cmd) {
+	private void showList() {
 		//article list 를 카운팅 하지 않고 length()사용
 		String searchKeywoed = cmd.substring("article list".length()).trim();
 		List<Article> printArticles = this.articles;// 아티클스에 있던거 넣어줌/원본 데이터를 지키기 위해
 
-		if(this.articles.size() == 0) {
+		if (this.articles.size() == 0) {
 			System.out.println("게시글이 없습니다.");
 			return; //메서드 종료 void 라서 리턴값 없이 해당 메서드 종료
 		}
-		if(searchKeywoed.length() > 0) {//검색어가 존재한다면
+		if (searchKeywoed.length() > 0) {//검색어가 존재한다면
 			System.out.println("검색어 : "+ searchKeywoed);
 			
 			printArticles = new ArrayList<>();//빈 객체 연결
-			
-			for(Article article : articles) {//검색어가 포함된 제목이 있는지 찾음
-				if(article.title.contains(searchKeywoed)) {//포함관계 메서드 contains()
+			 
+			for (Article article : articles) {//검색어가 포함된 제목이 있는지 찾음
+				if (article.title.contains(searchKeywoed)) {//포함관계 메서드 contains()
 					printArticles.add(article);//일치한걸 찾으면 넣기
 				}
 			}
-			if(printArticles.size() == 0) {
+			if (printArticles.size() == 0) {
 				System.out.println("검색결과가 없습니다.");
 				return; //메서드 종료 void 라서 리턴값 없이 해당 메서드 종료
 			}
@@ -59,23 +85,25 @@ public class ArticleController {
 		System.out.println("== 게시글 목록 ==");
 		System.out.println("번호	:	 제목	 :   작성일");
 		
-		for(int i = printArticles.size() - 1; i >= 0; i--) {//역순회 해야 해서 --
+		for (int i = printArticles.size() - 1; i >= 0; i--) {//역순회 해야 해서 --
 			Article article = printArticles.get(i);
 			System.out.printf("%d	:	 %s	 :   %s\n", article.id, article.title, article.regDate);
 		}
 	}
-	public void showDetail(String cmd) {
+	private void showDetail() {
 		String[] cmdBits = cmd.split(" ");
-		int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
 		
-//		for(int i = 0; i<cmdBits.length; i++) {//배열값 찍어보기
-//			
-//			System.out.println(cmdBits[i]);
-//		}
+		if (cmdBits.length == 2) {
+			System.out.println("명령어를 확인해주세요");
+			return;
+		}
+		
+		int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
+	
 		// 불린으로 가능 null 아니면 article / 백업을 위해 만듦 
 		Article foundArticle = getArticleById(id);//여기 존재하는 아이디를 넘겨줘야 메소드에서 사용 가능
 
-		if(foundArticle == null) {
+		if (foundArticle == null) {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 			return;
 		}
@@ -85,13 +113,19 @@ public class ArticleController {
 		System.out.printf("제목 : %s\n", foundArticle.title);
 		System.out.printf("내용 : %s\n", foundArticle.body);
 	}	
-	public void doModify(String cmd) {
+	private void doModify() {
 		
 		String[] cmdBits = cmd.split(" ");
+		
+		if (cmdBits.length == 2) {
+			System.out.println("명령어를 확인해주세요");
+			return;
+		}
+		
 		int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
 		Article foundArticle = getArticleById(id);
 		
-		if(foundArticle == null) {
+		if (foundArticle == null) {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 			return;
 		}
@@ -105,14 +139,20 @@ public class ArticleController {
 		foundArticle.title = body;
 		System.out.printf("%s 게시글 수정이 완료되었습니다.",id);
 	}
-	public void doDelete(String cmd) {
+	private void doDelete() {
 		
 		String[] cmdBits = cmd.split(" ");
+		
+		if (cmdBits.length == 2) {
+			System.out.println("명령어를 확인해주세요");
+			return;
+		}
+		
 		int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
 		   
 		Article foundArticle = getArticleById(id);
 		
-		if(foundArticle == null) {
+		if (foundArticle == null) {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 			return;
 		}
@@ -121,8 +161,8 @@ public class ArticleController {
 	}
 	private Article getArticleById(int id) {// id 값 넘겨 받음
 		
-		for(Article article : this.articles) { // 아디클을 넘겨주기 위해 존재
-			if(article.id == id) {
+		for (Article article : this.articles) { // 아디클을 넘겨주기 위해 존재
+			if (article.id == id) {
 				return article;
 			} 
 		}
@@ -136,5 +176,7 @@ public class ArticleController {
 		this.articles.add(new Article(++lastArticleId, Util.getDate(), "제목3", "내용3"));
 		System.out.println("테스트용 게시물이 생성되었습니다.");
 	}
+
+
 
 }

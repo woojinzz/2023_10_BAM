@@ -7,18 +7,36 @@ import java.util.Scanner;
 import example.dto.Member;
 import example.util.Util;
 
-public class MemberController {
+public class MemberController extends Controller {
 	
 	private List<Member> members; //회원 저장
 	private int lastMemberId; //회원 순서
-	private Scanner sc; // 효율성에 의해 넘겨 받음
+	
 	
 	public MemberController(Scanner sc){
 		this.members = new ArrayList<>();; // 회원 초기화
 		this.lastMemberId = 0;
 		this.sc = sc;
 	}
-	public void odJoin() {
+	
+	@Override
+	public void doAction(String cmd, String methodName) {
+		switch (methodName) {
+		case "join":
+			doJoin();
+			break;
+		case "login":
+			doLogin();
+			break;
+		default:
+			System.out.println("존재하지 않는 명령어 입니다.");
+			break;
+		}
+	
+	}
+
+
+	private void doJoin() {
 		
 		lastMemberId++;
 		String loginId = null;
@@ -35,14 +53,8 @@ public class MemberController {
 				continue;
 			}
 			
-			boolean loginIdDupChk = false;// 중복 체크
-			
-			for(Member member : members) {
-				if(loginId.equals(member.loginId)) {
-					loginIdDupChk = true; // 중복이면
-				}
-			}
-			if(loginIdDupChk) {// 반복문 빠져나가기 위해 한번더 체크
+
+			if(isloginIdDupChk(loginId)) {// 반복문 빠져나가기 위해 한번더 체크
 				System.out.printf("%s 는 이미 사용중인 아이디 입니다.\n", loginId);
 				continue;
 			}
@@ -81,7 +93,6 @@ public class MemberController {
 			break;
 		}
 	
-		
 		Member member = new Member(lastMemberId, Util.getDate(), loginId, loginPw, loginName);
 		this.members.add(member);
 		
@@ -91,5 +102,49 @@ public class MemberController {
 	System.out.printf("%s 회원님이 가입되셨습니다.\n", loginName);
 		
 	}
+	
+	private void doLogin() {
+		System.out.printf("아이디 : ");
+		String loginId = sc.nextLine().trim();
+		System.out.printf("비밀번호 : ");
+		String loginPw = sc.nextLine().trim();
+		
+		Member member = null;
+		
+		for (Member m : members){
+			if(m.loginId.equals(loginId)) {
+				member = m;
+				break;
+			}
+			
+		}
+		if(member == null) {
+			System.out.printf("%s 는 존재하지 않는 아이디 입니다.\n", loginId);
+			return;
+		}
+		if (member.loginPw.equals(loginPw) == false) {
+			System.out.println("비밀번호를 확인해 주세요");
+			return;
+		}
+		System.out.printf("%s 님 환영합니다\n", member.loginName);
+		
+		
+	}
+	
+	private boolean isloginIdDupChk(String loginId) {
+		
+		for(Member member : members) {
+			if(member.loginId.equals(loginId)) {
+				return true; 
+			
+			}
+		}
+		return false;
+	}
+
+
+
+
+
 
 }
