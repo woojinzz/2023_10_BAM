@@ -1,16 +1,11 @@
 package example;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import example.controller.ArticleController;
 import example.controller.Controller;
 import example.controller.MemberController;
-import example.dto.Article;
-import example.dto.Member;
-import example.util.Util;
 
 public class App {	
 	public void run() {
@@ -23,6 +18,8 @@ public class App {
 		ArticleController articleController = new ArticleController(sc);
 		
 		articleController.makeTestData();
+		memberController.makeTestData();
+		//memberController.isLogined();
 		
 		while(true) {
 			System.out.printf("명령어) ");

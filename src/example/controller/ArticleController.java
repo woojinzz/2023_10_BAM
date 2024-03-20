@@ -20,7 +20,7 @@ public class ArticleController extends Controller {
 		this.cmd = null;
 	}
 	@Override
-	public void doAction(String cmd, String methodName ){
+	public void doAction(String cmd, String methodName){
 		this.cmd = cmd;
 		switch (methodName) {
 		case "write":
@@ -46,6 +46,11 @@ public class ArticleController extends Controller {
 	
 	private void doWrite() {
 		
+		if (this.isLogined() == false) {
+			System.out.println("로그인 후 이용해주세요");
+			return;
+		}
+
 		lastArticleId++;
 		
 		System.out.printf("제목 : ");
@@ -53,7 +58,7 @@ public class ArticleController extends Controller {
 		System.out.printf("내용 : ");
 		String body = sc.nextLine();
 
-		Article article = new Article(lastArticleId, Util.getDate(), title, body);//값 받아올 사용자 객체가 필요함
+		Article article = new Article(lastArticleId,  Util.getDate(), loginedMember.id, title, body);//값 받아올 사용자 객체가 필요함
 		this.articles.add(article);
 		
 		System.out.printf("%d 번 글 생성\n" , lastArticleId);
@@ -83,11 +88,11 @@ public class ArticleController extends Controller {
 			}
 		}
 		System.out.println("== 게시글 목록 ==");
-		System.out.println("번호	:	 제목	 :   작성일");
+		System.out.println("번호	:	 작성일	 :             제목   :   작성자");
 		
 		for (int i = printArticles.size() - 1; i >= 0; i--) {//역순회 해야 해서 --
 			Article article = printArticles.get(i);
-			System.out.printf("%d	:	 %s	 :   %s\n", article.id, article.title, article.regDate);
+			System.out.printf("%d	:	 %s	 :   %s  :  %d\n", article.id, article.regDate, article.title, article.memberId);
 		}
 	}
 	private void showDetail() {
@@ -110,6 +115,7 @@ public class ArticleController extends Controller {
 		System.out.println("== 게시글 상세 ==");
 		System.out.printf("번호 : %d\n", foundArticle.id);
 		System.out.printf("작성일 : %s\n", foundArticle.regDate);
+		System.out.printf("작성자 : %d\n", foundArticle.memberId);
 		System.out.printf("제목 : %s\n", foundArticle.title);
 		System.out.printf("내용 : %s\n", foundArticle.body);
 	}	
@@ -168,12 +174,13 @@ public class ArticleController extends Controller {
 		}
 		return null;
 	}
+	@Override
 	public void makeTestData() {//test 데이터 
 		
 		//0부터 시작하기 때문에 + 1 씩 각각 해줘야 함 / 전위연산은 이코드가 실행되기 전에 + 
-		this.articles.add(new Article(++lastArticleId, Util.getDate(), "제목1", "내용1"));
-	    this.articles.add(new Article(++lastArticleId, Util.getDate(), "제목2", "내용2"));
-		this.articles.add(new Article(++lastArticleId, Util.getDate(), "제목3", "내용3"));
+		this.articles.add(new Article(++lastArticleId, Util.getDate(), 2, "제목1", "내용1"));
+	    this.articles.add(new Article(++lastArticleId, Util.getDate(), 3, "제목2", "내용2"));
+		this.articles.add(new Article(++lastArticleId, Util.getDate(), 2, "제목3", "내용3"));
 		System.out.println("테스트용 게시물이 생성되었습니다.");
 	}
 
