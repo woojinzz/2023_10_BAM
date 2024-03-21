@@ -33,12 +33,37 @@ public class App {
 			}
 			String controllerName = cmdBits[0];
 			String methodName = cmdBits[1];
+			
+			String actionName = controllerName + "/" + methodName;
+			
+			switch (actionName) {
+			
+			
+
+			case "article/weite" : 
+			case "article/modify" : 
+			case "article/delete" : 
+			case "member/logout" : 
+				if (Controller.isLogined() == false) {
+					System.out.println("로그인을 먼저 해주세요.");
+					continue;
+				}
+				break;
+			case "member/join" :
+			case "member/login" : 
+				if (Controller.isLogined() != false) {
+					System.out.println("로그아웃 후 이용해주세요.");
+					continue;
+				}
+				break;
+			}
+			
+			
 			Controller controller = null;
 			
 			if (cmd.equals("exit")) {
 				break;
 			}
-		
 			if (controllerName.equals("member")) {
 				controller = memberController;
 			} else if (controllerName.equals("article")) {

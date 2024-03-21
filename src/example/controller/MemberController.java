@@ -102,12 +102,8 @@ public class MemberController extends Controller {
 	
 		Member member = new Member(lastMemberId, Util.getDate(), loginId, loginPw, loginName);
 		this.members.add(member);
-		
-		for(Member mem : members) {
-			System.out.printf("%s	:	 %s	 :   %s :     %s\n", Util.getDate(), member.loginId, member.loginPw, member.loginName);
-		}
+	
 	System.out.printf("%s 회원님이 가입되셨습니다.\n", loginName);
-		
 	}
 	
 	private void doLogin() {

@@ -45,12 +45,6 @@ public class ArticleController extends Controller {
 	}
 	
 	private void doWrite() {
-		
-		if (this.isLogined() == false) {
-			System.out.println("로그인 후 이용해주세요");
-			return;
-		}
-
 		lastArticleId++;
 		
 		System.out.printf("제목 : ");
@@ -135,6 +129,10 @@ public class ArticleController extends Controller {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 			return;
 		}
+		if (foundArticle.memberId != loginedMember.id) {
+			System.out.printf("%d 번 게시글의 권한이 없습니다.\n", id);
+			return;
+		}
 		System.out.println("== 게시글 수정 ==");
 		System.out.printf("수정할 제목 : ");
 		String title = sc.nextLine();
@@ -160,6 +158,10 @@ public class ArticleController extends Controller {
 		
 		if (foundArticle == null) {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
+			return;
+		}
+		if (foundArticle.memberId != loginedMember.id) {
+			System.out.printf("%d 번 게시글의 권한이 없습니다.\n", id);
 			return;
 		}
 		this.articles.remove(foundArticle);
