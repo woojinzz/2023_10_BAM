@@ -1,21 +1,17 @@
 package example.controller;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
+import example.Container;
 import example.dto.Member;
 import example.util.Util;
 
 public class MemberController extends Controller {
 	
-	private List<Member> members; //회원 저장
-	private int lastMemberId; //회원 순서
-	
+
 	
 	public MemberController(Scanner sc){
-		this.members = new ArrayList<>();; // 회원 초기화
-		this.lastMemberId = 0;
+
 		this.sc = sc;
 
 	}
@@ -38,16 +34,9 @@ public class MemberController extends Controller {
 		}
 	}
 
-
-
 	private void doJoin() {
-		
-//		if (isLogined() == false) {
-//			System.out.println("로그아웃 후 이용해주세요");
-//			return;
-//		}
-		
-		lastMemberId++;
+
+		int lastMemberId = Container.memberDao.getListMemberId();
 		String loginId = null;
 		String loginPw = null; 
 		String loginPwChk = null; 
@@ -61,7 +50,7 @@ public class MemberController extends Controller {
 				System.out.println("아이디는 필수입력 정보입니다.");
 				continue;
 			}
-			if(isloginIdDupChk(loginId)) {// 반복문 빠져나가기 위해 한번더 체크
+			if(Container.memberDao.isloginIdDupChk(loginId)) {// 반복문 빠져나가기 위해 한번더 체크
 				System.out.printf("%s 는 이미 사용중인 아이디 입니다.\n", loginId);
 				continue;
 			}
@@ -101,7 +90,7 @@ public class MemberController extends Controller {
 		}
 	
 		Member member = new Member(lastMemberId, Util.getDate(), loginId, loginPw, loginName);
-		this.members.add(member);
+		Container.memberDao.doJoin(member);
 	
 	System.out.printf("%s 회원님이 가입되셨습니다.\n", loginName);
 	}
@@ -137,7 +126,7 @@ public class MemberController extends Controller {
 			break;
 		}
 		
-		Member member = getMemberByLoginId(loginId);
+		Member member = Container.memberDao.getMemberByLoginId(loginId);
 		
 
 		if(member == null) {
@@ -166,31 +155,14 @@ public class MemberController extends Controller {
 		System.out.println("로그아웃 되었습니다.");
 		
 	}
-	private Member getMemberByLoginId(String loginId) {
-		for (Member member : members){
-			if(member.loginId.equals(loginId)) {
-			    return member;
-			}
-		}
-		return null;
-	}
-	
-	private boolean isloginIdDupChk(String loginId) {
-		Member member = getMemberByLoginId(loginId);
-		
-		if (member != null) {
-			return true;
-		}
-		return false;
-	}
 
 	@Override
 	public void makeTestData() {//test 데이터 
 		
 		//0부터 시작하기 때문에 + 1 씩 각각 해줘야 함 / 전위연산은 이코드가 실행되기 전에 + 
-		this.members.add(new Member(++lastMemberId, Util.getDate(), "test1", "test1", "user1"));
-	    this.members.add(new Member(++lastMemberId, Util.getDate(), "test2", "test2", "user2"));
-		this.members.add(new Member(++lastMemberId, Util.getDate(), "test3", "test3", "user3"));
+		Container.memberDao.doJoin(new Member(Container.memberDao.getListMemberId(), Util.getDate(), "test1", "test1", "user1"));
+		Container.memberDao.doJoin(new Member(Container.memberDao.getListMemberId(), Util.getDate(), "test2", "test2", "user2"));
+		Container.memberDao.doJoin(new Member(Container.memberDao.getListMemberId(), Util.getDate(), "test3", "test3", "user3"));
 		System.out.println("테스트용 회원데이터가 생성되었습니다.");
 	}
 
