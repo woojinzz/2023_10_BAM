@@ -6,20 +6,24 @@ import java.util.Scanner;
 
 import example.Container;
 import example.dto.Article;
-import example.dto.Member;
+import example.service.ArticleService;
+import example.service.MemberService;
 import example.util.Util;
 
 public class ArticleController extends Controller {
 	
 	
-	private Scanner sc; // 효율성에 의해 넘겨 받음
+	//private Scanner sc; // 효율성에 의해 넘겨 받음
 	private String cmd;
+	private ArticleService articleService;
+	private MemberService memberService;
 	
 	public ArticleController(Scanner sc) {
 	
-		
 		this.sc = sc;
 		this.cmd = null;
+		this.articleService = Container.articleService;
+		this.memberService = Container.memberService;
 	}
 	@Override
 	public void doAction(String cmd, String methodName){
@@ -48,7 +52,7 @@ public class ArticleController extends Controller {
 	
 	private void doWrite() {
 		
-		int lastArticleId = Container.articleDao.getLastId();
+		int lastArticleId = articleService.getLastId();
 		
 		System.out.printf("제목 : ");
 		String title = sc.nextLine();
@@ -56,13 +60,13 @@ public class ArticleController extends Controller {
 		String body = sc.nextLine();
 
 		Article article = new Article(lastArticleId,  Util.getDate(), loginedMember.id, title, body);//값 받아올 사용자 객체가 필요함
-		Container.articleDao.doWrite(article);
+		Container.articleService.doWrite(article);
 		
 		System.out.printf("%d 번 글 생성\n" , lastArticleId);
 	}
 	private void showList() {
 		
-		List<Article> articles = Container.articleDao.getArticles();
+		List<Article> articles = articleService.getArticles();
 		
 		if (articles.size() == 0) {
 			System.out.println("게시글이 없습니다.");
@@ -94,8 +98,7 @@ public class ArticleController extends Controller {
 		for (int i = printArticles.size() - 1; i >= 0; i--) {//역순회 해야 해서 --
 			Article article = printArticles.get(i);
 			
-			String writerName = Container.memberDao.getWriteName(article.memberId);
-
+			String writerName = memberService.getWriteName(article.memberId);
 			System.out.printf("%d	:	 %s	 :   %s  :  %s\n", article.id, article.regDate, article.title, writerName);
 		}
 	}
@@ -110,16 +113,19 @@ public class ArticleController extends Controller {
 		int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
 	
 		// 불린으로 가능 null 아니면 article / 백업을 위해 만듦 
-		Article foundArticle = Container.articleDao.getArticleById(id);//여기 존재하는 아이디를 넘겨줘야 메소드에서 사용 가능
+		Article foundArticle = articleService.getArticleById(id);//여기 존재하는 아이디를 넘겨줘야 메소드에서 사용 가능
 
 		if (foundArticle == null) {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
 			return;
 		}
+		
+		String writerName = memberService.getWriteName(foundArticle.memberId);
+		
 		System.out.println("== 게시글 상세 ==");
 		System.out.printf("번호 : %d\n", foundArticle.id);
 		System.out.printf("작성일 : %s\n", foundArticle.regDate);
-		System.out.printf("작성자 : %d\n", foundArticle.memberId);
+		System.out.printf("작성자 : %s\n", writerName);
 		System.out.printf("제목 : %s\n", foundArticle.title);
 		System.out.printf("내용 : %s\n", foundArticle.body);
 	}	
@@ -133,7 +139,7 @@ public class ArticleController extends Controller {
 		}
 		
 		int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
-		Article foundArticle = Container.articleDao.getArticleById(id);
+		Article foundArticle = articleService.getArticleById(id);
 		
 		if (foundArticle == null) {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
@@ -149,7 +155,7 @@ public class ArticleController extends Controller {
 		System.out.printf("수정할 내용 : ");
 		String body = sc.nextLine();
 		
-		Container.articleDao.doModify(foundArticle, title, body);
+		articleService.doModify(foundArticle, title, body);
 		System.out.printf("%s 게시글 수정이 완료되었습니다.",id);
 	}
 	private void doDelete() { 
@@ -163,7 +169,7 @@ public class ArticleController extends Controller {
 		
 		int id = Integer.parseInt(cmdBits[2]);//String 를 int로 형 변환
 		   
-		Article foundArticle = Container.articleDao.getArticleById(id);
+		Article foundArticle = articleService.getArticleById(id);
 		
 		if (foundArticle == null) {
 			System.out.printf("%d 번 게시물은 존재하지 않습니다.\n", id);
@@ -173,7 +179,7 @@ public class ArticleController extends Controller {
 			System.out.printf("%d 번 게시글의 권한이 없습니다.\n", id);
 			return;
 		}
-		Container.articleDao.doDelete(foundArticle);
+		articleService.doDelete(foundArticle);
 		System.out.printf("%d 번 게시물을 삭제 했습니다.\n",id);
 	}
 
@@ -181,9 +187,9 @@ public class ArticleController extends Controller {
 	public void makeTestData() {//test 데이터 
 		
 		//0부터 시작하기 때문에 + 1 씩 각각 해줘야 함 / 전위연산은 이코드가 실행되기 전에 + 
-		Container.articleDao.doWrite(new Article(Container.articleDao.getLastId(), Util.getDate(), 2, "제목1", "내용1"));
-		Container.articleDao.doWrite(new Article(Container.articleDao.getLastId(), Util.getDate(), 3, "제목2", "내용2"));
-		Container.articleDao.doWrite(new Article(Container.articleDao.getLastId(), Util.getDate(), 2, "제목3", "내용3"));
+		articleService.doWrite(new Article(articleService.getLastId(), Util.getDate(), 2, "제목1", "내용1"));
+		articleService.doWrite(new Article(articleService.getLastId(), Util.getDate(), 3, "제목2", "내용2"));
+		articleService.doWrite(new Article(articleService.getLastId(), Util.getDate(), 2, "제목3", "내용3"));
 		System.out.println("테스트용 게시물이 생성되었습니다.");
 	}
 

@@ -14,15 +14,7 @@ public class MemberDao extends Dao{
 		this.members = new ArrayList<>();; // 회원 초기화
 		
 	}
-	
-	public int getListMemberId() {
-		return this.lastId + 1;
-	}
-	
-	public List<Member> getMembers() {
-		return this.members;
-	}
-	
+		
 	public void doJoin(Member member) {
 		this.members.add(member);
 		this.lastId++;
@@ -48,7 +40,7 @@ public class MemberDao extends Dao{
 
 	public String getWriteName(int memberId) {
 		
-		for (Member member : Container.memberDao.getMembers()) {
+		for (Member member : this.members) {
 			if (memberId == member.id) {
 				return member.loginName;
 			}

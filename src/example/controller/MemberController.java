@@ -4,15 +4,21 @@ import java.util.Scanner;
 
 import example.Container;
 import example.dto.Member;
+import example.service.ArticleService;
+import example.service.MemberService;
 import example.util.Util;
 
 public class MemberController extends Controller {
 	
+	private ArticleService articleService;
+	private MemberService memberService;
 
 	
 	public MemberController(Scanner sc){
 
 		this.sc = sc;
+		this.articleService = Container.articleService;
+		this.memberService = Container.memberService;
 
 	}
 	
@@ -36,7 +42,7 @@ public class MemberController extends Controller {
 
 	private void doJoin() {
 
-		int lastMemberId = Container.memberDao.getListMemberId();
+		int lastMemberId = memberService.getLastId();
 		String loginId = null;
 		String loginPw = null; 
 		String loginPwChk = null; 
@@ -50,7 +56,7 @@ public class MemberController extends Controller {
 				System.out.println("아이디는 필수입력 정보입니다.");
 				continue;
 			}
-			if(Container.memberDao.isloginIdDupChk(loginId)) {// 반복문 빠져나가기 위해 한번더 체크
+			if(memberService.isloginIdDupChk(loginId)) {// 반복문 빠져나가기 위해 한번더 체크
 				System.out.printf("%s 는 이미 사용중인 아이디 입니다.\n", loginId);
 				continue;
 			}
@@ -90,7 +96,7 @@ public class MemberController extends Controller {
 		}
 	
 		Member member = new Member(lastMemberId, Util.getDate(), loginId, loginPw, loginName);
-		Container.memberDao.doJoin(member);
+		memberService.doJoin(member);
 	
 	System.out.printf("%s 회원님이 가입되셨습니다.\n", loginName);
 	}
@@ -126,7 +132,7 @@ public class MemberController extends Controller {
 			break;
 		}
 		
-		Member member = Container.memberDao.getMemberByLoginId(loginId);
+		Member member = memberService.getByMemberByLoginId(loginId);
 		
 
 		if(member == null) {
@@ -160,9 +166,9 @@ public class MemberController extends Controller {
 	public void makeTestData() {//test 데이터 
 		
 		//0부터 시작하기 때문에 + 1 씩 각각 해줘야 함 / 전위연산은 이코드가 실행되기 전에 + 
-		Container.memberDao.doJoin(new Member(Container.memberDao.getListMemberId(), Util.getDate(), "test1", "test1", "user1"));
-		Container.memberDao.doJoin(new Member(Container.memberDao.getListMemberId(), Util.getDate(), "test2", "test2", "user2"));
-		Container.memberDao.doJoin(new Member(Container.memberDao.getListMemberId(), Util.getDate(), "test3", "test3", "user3"));
+		memberService.doJoin(new Member(memberService.getLastId(), Util.getDate(), "test1", "test1", "user1"));
+		memberService.doJoin(new Member(memberService.getLastId(), Util.getDate(), "test2", "test2", "user2"));
+		memberService.doJoin(new Member(memberService.getLastId(), Util.getDate(), "test3", "test3", "user3"));
 		System.out.println("테스트용 회원데이터가 생성되었습니다.");
 	}
 
